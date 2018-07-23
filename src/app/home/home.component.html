@@ -1,0 +1,32 @@
+<div class="container" *ngIf="weatherForcast != null">
+  <div class="row">
+    <h4>{{weatherForcast.city}}, {{weatherForcast.country}}</h4>
+  </div>
+  <div class="row card-deck">
+    <div class="card" *ngFor="let day of weatherForcast.daysForcast">
+      <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class=" h5">{{day.date}}</div>
+          <div class=" h5 align-right">{{ day.avgTemp | number:'1.0-0'}}&deg; </div>
+        </div>
+      <hr>
+        <div class="card-text small" *ngFor="let time of day.weatherByTime; index as i">
+          <div class="d-flex justify-content-between align-items-center">
+            <p>{{time.time}}
+            </p>
+            <img [src]="'//openweathermap.org/img/w/'+ time.icon +'.png'" alt="forecast">
+          </div>
+          <div class="d-flex flex-column">
+            <div class="p">Temp: {{time.temp | number:'1.0-0'}}&deg;</div>
+            <div class="p">Humidity: {{time.humidity}}</div>
+            <div class="p">{{time.main}}</div>
+            <!-- <div class="p">{{time.description}}</div> -->
+          </div>
+          <hr *ngIf="i < day.weatherByTime.length - 1 ">
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

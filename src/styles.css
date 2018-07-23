@@ -1,1 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+.back {
+  display: block;
+  position: relative;
+}
+
+.back::after {
+  content: "";
+  background: url("./assets/images/back.jpg ") no-repeat center center;
+  background-size: cover;
+  opacity: .7;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+}
+body{
+    background-color: #72c1e5 !important;
+}
+
