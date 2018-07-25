@@ -1,29 +1,26 @@
 <h5>
   Settings
 </h5>
-<form>
-  <div class="form-row">
-    <div class="col-md-6 mb-3">
-      <label for="validationServer03">City</label>
-      <input type="text" class="form-control is-invalid" id="validationServer03" placeholder="City" required>
-      <div class="invalid-feedback">
-        Please provide a valid city.
-      </div>
-    </div>
+<form (ngSubmit)="saveSettings()" #settingsForm="ngForm">
+  <div class="form-group">
+    <label for="typeahead-http">Enter City:</label>
+    <input id="typeahead-http" required name="city" type="text" class="form-control" [resultFormatter]="cityFormatter" [class.is-invalid]="searchFailed" [ngModel]="city|cityFormatter" (ngModelChange)="city = $event" [ngbTypeahead]="search" placeholder="search" />
+    <span *ngIf="searching">searching...</span>
+    <div class="invalid-feedback" *ngIf="searchFailed">Sorry, cities could not be loaded.</div>
   </div>
   <div class="form-row">
     <div class="col-md-6 mb-3">
       <label for="validationServer03">Units &nbsp;</label>
       <div class="btn-group btn-group-toggle" data-toggle="buttons">
         <label class="btn btn-secondary active">
-          <input type="radio" name="options" id="option1" autocomplete="off" checked> &deg;C
+          <input type="radio" name="unitOption" [(ngModel)]="unitOption" value="C" autocomplete="off" > &deg;C
         </label>
         <label class="btn btn-secondary">
-          <input type="radio" name="options" id="option2" autocomplete="off"> &deg;F
+          <input type="radio" name="unitOption" [(ngModel)]="unitOption" value="F" autocomplete="off"> &deg;F
         </label>
       </div>
 
     </div>
   </div>
-  <button class="btn btn-primary" type="submit">Save</button>
+  <button class="btn btn-primary" [disabled]="settingsForm.form.pristine || !settingsForm.form.valid" type="submit">Save</button>
 </form>

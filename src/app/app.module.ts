@@ -12,6 +12,7 @@ import { WeatherCardComponent } from './weather-card/weather-card.component';
 import { ToastrModule } from 'ngx-toastr';
 import { MomentModule } from 'ngx-moment';
 import { SettingComponent } from './setting/setting.component';
+import { CityFormatter } from 'src/app/setting/city-name-formatter.pipe';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { SettingComponent } from './setting/setting.component';
     NavMenuComponent,
     HomeComponent,
     WeatherCardComponent,
-    SettingComponent
+    SettingComponent,
+    CityFormatter
   ],
   imports: [
     BrowserModule,

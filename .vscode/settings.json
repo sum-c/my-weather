@@ -1,0 +1,7 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/80570c9f-e3da-4fcc-a929-355d207b7470/resourceGroups/appsvc_rg_linux_eastasia/providers/Microsoft.Web/sites/my-weather",
+    "appService.deploySubpath": "dist\\my-weather"
+}

@@ -3,22 +3,28 @@ import { Observable } from '../../../../node_modules/rxjs';
 import { HttpClient } from '../../../../node_modules/@angular/common/http';
 import { WeatherSearch } from '../models/weather-projected';
 import { WeatherSearchResponse } from '../models/weather-search-result';
+import { WeatherSearchSettings } from '../models/weather-settings';
 import * as _ from 'underscore';
 import { throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
+import { LocalStorage } from '@ngx-pwa/local-storage';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WeatherService {
+  static readonly SETTING_KEY = 'SETTINGS';
+  static readonly DFAULT_UNIT = 'C';
 
   weatherBaseUrl = 'https://api.openweathermap.org/data/2.5/';
   appId = '1aec44cd4800d0a527ea9567e05768bf';
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private localStorage: LocalStorage) { }
 
-  getWeatherForcast(lat: number, long: number): Observable<WeatherSearch.WeatherProjected> {
-    const url = `${this.weatherBaseUrl}/forecast?lat=${lat}&lon=${long}&appid=${this.appId}&&units=metric`;
+  getWeatherForcast(settings: WeatherSearchSettings.Settings): Observable<WeatherSearch.WeatherProjected> {
+    const unit = settings.unit === WeatherService.DFAULT_UNIT ? 'metric' : 'imperial';
+    const url = `${this.weatherBaseUrl}/forecast?lat=${settings.location.coord.lat}` +
+    `&lon=${settings.location.coord.lon}&appid=${this.appId}&units=${unit}`;
     return this.http.get(url)
       .pipe(map((data: WeatherSearchResponse.WeatherForcast) => {
         return this.mapWeatherResult(data);
@@ -26,6 +32,31 @@ export class WeatherService {
         console.error(error);
         return throwError('Something went wrong!');
       }));
+  }
+
+  getCity(query: string): Observable<WeatherSearchSettings.Location> {
+    const url = `${this.weatherBaseUrl}/find?q=${query}&type=like&sort=population&cnt=30&appid=${this.appId}`;
+    return this.http.get(url)
+      .pipe(map((data: any) => {
+        if (data && data.cod && data.cod === '200') {
+          return data.list.map((city: any) =>
+            new WeatherSearchSettings.Location(city.name + ', ' + city.sys.country,
+              new WeatherSearchSettings.Coord(+city.coord.lat, +city.coord.lon)));
+        } else {
+          return [];
+        }
+      }), catchError(error => {
+        console.error(error);
+        return throwError('Something went wrong!');
+      }));
+  }
+
+  saveSettings(Settings: WeatherSearchSettings.Settings): Observable<boolean> {
+    return this.localStorage.setItem(WeatherService.SETTING_KEY, Settings);
+  }
+
+  getSettings(): Observable<WeatherSearchSettings.Settings> {
+    return this.localStorage.getItem(WeatherService.SETTING_KEY);
   }
 
   private mapWeatherResult(rawResponse: WeatherSearchResponse.WeatherForcast): WeatherSearch.WeatherProjected {
