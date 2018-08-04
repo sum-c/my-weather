@@ -92,7 +92,7 @@ export class WeatherService {
           return new WeatherSearch.WeatherByTime(time, temp, humidity, main, description, icon, );
         });
 
-        const avgTemp = weatherByTime.map(t => t.temp).reduce((a, b) => a + b, 0) / value.length;
+        const avgTemp = weatherByTime.map(t => t.temp).reduce((a, b) => a > b ? a : b, 0);
         const date = thisDate.format('DD MMM');
         const weatherByDay = new WeatherSearch.WeatherByDay(date, avgTemp, weatherByTime);
         daysForcast.push(weatherByDay);
