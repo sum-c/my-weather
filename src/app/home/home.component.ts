@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { WeatherSearchSettings } from 'src/app/shared/models/weather-settings';
 import { Observable, interval } from 'rxjs';
+import { tap } from '../../../node_modules/rxjs/operators';
 
 
 @Component({
@@ -18,6 +19,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   weatherForcast: WeatherSearch.WeatherProjected;
   autoLloadWeatherSub: any;
   hasError: boolean;
+  lastUpdatedDate:Date;
+  refreshing: boolean;
   constructor(private toastr: ToastrService,
     private weatherService: WeatherService,
     private router: Router) {
@@ -72,10 +75,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   }
   loadWeather() {
+    this.refreshing = true;
     this.weatherService.getWeatherForcast(this.settings)
       .subscribe(res => {
         this.weatherForcast = res;
+        this.lastUpdatedDate = new Date();
+        this.refreshing = false;
       }, err => {
+        this.refreshing = false;
         this.hasError = true;
         this.toastr.error('Failed to get weather forcast, please try after sometime.');
       });

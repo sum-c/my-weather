@@ -14,6 +14,7 @@ import { MomentModule } from 'ngx-moment';
 import { SettingComponent } from './setting/setting.component';
 import { CityFormatter } from 'src/app/setting/city-name-formatter.pipe';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,6 +33,7 @@ import { CityFormatter } from 'src/app/setting/city-name-formatter.pipe';
     FormsModule,
     ToastrModule.forRoot(),
     MomentModule,
+    FontAwesomeModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
        { path: 'setting', component: SettingComponent },
