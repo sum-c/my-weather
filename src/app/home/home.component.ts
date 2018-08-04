@@ -46,9 +46,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   triggerAutoReload(intervalInmins: number) {
-    const source = interval((intervalInmins || 1) * 60 * 1000);
+    const source = interval((+intervalInmins || 1) * 60 * 1000);
     this.autoLloadWeatherSub = source.subscribe(() => {
-      this.toastr.info('Updating weather...');
       this.loadWeather();
     });
   }
