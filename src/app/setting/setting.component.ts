@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { NgbTypeaheadConfig } from '@ng-bootstrap/ng-bootstrap';
 import { WeatherService } from 'src/app/shared/services/weather.service';
 import { Observable, of } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, tap, switchMap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, tap, switchMap, filter } from 'rxjs/operators';
 import { WeatherSearchSettings } from '../shared/models/weather-settings';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-setting',
@@ -15,18 +16,43 @@ import { Router } from '@angular/router';
 })
 export class SettingComponent implements OnInit {
 
-  city: WeatherSearchSettings.Location;
-  unitOption: string;
+  settingForm = this.fb.group({
+    city: [null, Validators.required],
+    unitOption: ['', Validators.required],
+    refreshInterval: [0, Validators.required],
+  });
+
   searching = false;
   searchFailed = false;
 
   constructor(private weatherService: WeatherService,
     private toastr: ToastrService,
-    private router: Router) {
-      this.unitOption = WeatherService.DFAULT_UNIT;
+    private router: Router,
+    private fb: FormBuilder) {
   }
 
   ngOnInit() {
+    this.settingForm.get('city').valueChanges
+      .subscribe(v => {
+        const value = v ? v : { name: '', coord: [] };
+        this.settingForm.value.city = value;
+      });
+    this.weatherService.getSettings()
+      .subscribe((currentSavedWeather) => {
+        if (currentSavedWeather) {
+          this.mapFormProps(currentSavedWeather);
+        } else {
+          this.mapFormProps(WeatherSearchSettings.DefaultSettings);
+        }
+      });
+  }
+
+  mapFormProps(currentSavedWeather: WeatherSearchSettings.Settings) {
+    this.settingForm.patchValue({
+      'city': currentSavedWeather.location,
+      'unitOption': currentSavedWeather.unit,
+      'refreshInterval': currentSavedWeather.refreshInterval
+    });
   }
 
   cityFormatter = (result: any) => result.name;
@@ -35,6 +61,7 @@ export class SettingComponent implements OnInit {
     text$.pipe(
       debounceTime(300),
       distinctUntilChanged(),
+      filter(query => (query || '').length > 2),
       tap(() => this.searching = true),
       switchMap(query =>
         this.weatherService.getCity(query).pipe(
@@ -49,7 +76,9 @@ export class SettingComponent implements OnInit {
 
   saveSettings() {
     const settings = new WeatherSearchSettings.Settings(
-      new WeatherSearchSettings.Location(this.city.name, this.city.coord), this.unitOption);
+      new WeatherSearchSettings.Location(this.settingForm.value.city.name, this.settingForm.value.city.coord),
+      this.settingForm.value.unitOption,
+      this.settingForm.value.refreshInterval);
     this.weatherService.saveSettings(settings).subscribe((result) => {
       if (result) {
         this.toastr.success('Settings saved successfully');

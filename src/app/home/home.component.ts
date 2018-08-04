@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { WeatherService } from 'src/app/shared/services/weather.service';
 import { WeatherSearch } from 'src/app/shared/models/weather-projected';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { WeatherSearchSettings } from 'src/app/shared/models/weather-settings';
-import { Observable } from '../../../node_modules/rxjs';
+import { Observable, interval } from 'rxjs';
 
 
 @Component({
@@ -12,10 +12,12 @@ import { Observable } from '../../../node_modules/rxjs';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
   settings: WeatherSearchSettings.Settings;
   weatherForcast: WeatherSearch.WeatherProjected;
+  autoLloadWeatherSub: any;
+  hasError: boolean;
   constructor(private toastr: ToastrService,
     private weatherService: WeatherService,
     private router: Router) {
@@ -27,9 +29,24 @@ export class HomeComponent implements OnInit {
       if (settings) {
         this.settings = settings;
         this.loadWeather();
+        this.triggerAutoReload(this.settings.refreshInterval);
       } else {
         this.loadWeatherOnBrowserLocation();
       }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.autoLloadWeatherSub) {
+      this.autoLloadWeatherSub.unsubscribe();
+    }
+  }
+
+  triggerAutoReload(intervalInmins: number) {
+    const source = interval((intervalInmins || 1) * 60 * 1000);
+    this.autoLloadWeatherSub = source.subscribe(() => {
+      this.toastr.info('Updating weather...');
+      this.loadWeather();
     });
   }
 
@@ -37,10 +54,10 @@ export class HomeComponent implements OnInit {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(position => {
         this.settings = new WeatherSearchSettings.Settings(
-            new WeatherSearchSettings.Location('', new WeatherSearchSettings.Coord(position.coords.latitude, position.coords.longitude)),
-          WeatherService.DFAULT_UNIT);
+          new WeatherSearchSettings.Location('', new WeatherSearchSettings.Coord(position.coords.latitude, position.coords.longitude)));
         this.weatherService.saveSettings(this.settings);
         this.loadWeather();
+        this.triggerAutoReload(this.settings.refreshInterval);
       }, err => {
         console.warn(`ERROR(${err.code}): ${err.message}`);
         this.routeToSettings();
@@ -59,6 +76,7 @@ export class HomeComponent implements OnInit {
       .subscribe(res => {
         this.weatherForcast = res;
       }, err => {
+        this.hasError = true;
         this.toastr.error('Failed to get weather forcast, please try after sometime.');
       });
   }

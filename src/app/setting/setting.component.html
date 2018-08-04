@@ -1,10 +1,14 @@
 <h5>
   Settings
 </h5>
-<form (ngSubmit)="saveSettings()" #settingsForm="ngForm">
+<form [formGroup]="settingForm" [noValidate] (ngSubmit)="saveSettings()">
   <div class="form-group">
     <label for="typeahead-http">Enter City:</label>
-    <input id="typeahead-http" required name="city" type="text" class="form-control" [resultFormatter]="cityFormatter" [class.is-invalid]="searchFailed" [ngModel]="city|cityFormatter" (ngModelChange)="city = $event" [ngbTypeahead]="search" placeholder="search" />
+    <input id="typeahead-http" name="city" type="text" class="form-control"
+      [resultFormatter]="cityFormatter" [class.is-invalid]="searchFailed"
+      formControlName="city" 
+      [value]="settingForm.value?.city | cityFormatter"
+      [ngbTypeahead]="search" placeholder="search" />
     <span *ngIf="searching">searching...</span>
     <div class="invalid-feedback" *ngIf="searchFailed">Sorry, cities could not be loaded.</div>
   </div>
@@ -12,15 +16,27 @@
     <div class="col-md-6 mb-3">
       <label for="validationServer03">Units &nbsp;</label>
       <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-secondary active">
-          <input type="radio" name="unitOption" [(ngModel)]="unitOption" value="C" autocomplete="off" > &deg;C
+        <label class="btn btn-secondary" [ngClass]="{active: (settingForm.value.unitOption == 'C')}">
+          <input type="radio" formControlName="unitOption" name="unitOption" value="C" autocomplete="off"> &deg;C
         </label>
-        <label class="btn btn-secondary">
-          <input type="radio" name="unitOption" [(ngModel)]="unitOption" value="F" autocomplete="off"> &deg;F
+        <label class="btn btn-secondary" [ngClass]="{active: (settingForm.value.unitOption == 'F')}">
+          <input type="radio" name="unitOption" formControlName="unitOption" value="F" autocomplete="off"> &deg;F
         </label>
       </div>
-
     </div>
   </div>
-  <button class="btn btn-primary" [disabled]="settingsForm.form.pristine || !settingsForm.form.valid" type="submit">Save</button>
+  <div class="form-group">
+    <label for="select-interval">Update Interval:</label>
+    <select id="select-interval" formControlName="refreshInterval" 
+          class="form-control">
+      <option value="5">5 Mins</option>
+      <option value="10">10 Mins</option>
+      <option value="15">15 Mins</option>
+      <option value="30">30 Mins</option>
+      <option value="60">1 Hr</option>
+      <option value="120">2 Hr</option>
+      <option value="300">5 Hr</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" [disabled]="settingForm.pristine || !settingForm.valid" type="submit">Save Setting</button>
 </form>

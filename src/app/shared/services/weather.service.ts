@@ -9,22 +9,19 @@ import { throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 import { LocalStorage } from '@ngx-pwa/local-storage';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WeatherService {
   static readonly SETTING_KEY = 'SETTINGS';
-  static readonly DFAULT_UNIT = 'C';
-
-  weatherBaseUrl = 'https://api.openweathermap.org/data/2.5/';
-  appId = '1aec44cd4800d0a527ea9567e05768bf';
   constructor(private http: HttpClient, private localStorage: LocalStorage) { }
 
   getWeatherForcast(settings: WeatherSearchSettings.Settings): Observable<WeatherSearch.WeatherProjected> {
-    const unit = settings.unit === WeatherService.DFAULT_UNIT ? 'metric' : 'imperial';
-    const url = `${this.weatherBaseUrl}/forecast?lat=${settings.location.coord.lat}` +
-    `&lon=${settings.location.coord.lon}&appid=${this.appId}&units=${unit}`;
+    const unit = settings.unit === 'C' ? 'metric' : 'imperial';
+    const url = `${environment.openweathermapUrl}/forecast?lat=${settings.location.coord.lat}` +
+      `&lon=${settings.location.coord.lon}&appid=${environment.appId}&units=${unit}`;
     return this.http.get(url)
       .pipe(map((data: WeatherSearchResponse.WeatherForcast) => {
         return this.mapWeatherResult(data);
@@ -35,7 +32,7 @@ export class WeatherService {
   }
 
   getCity(query: string): Observable<WeatherSearchSettings.Location> {
-    const url = `${this.weatherBaseUrl}/find?q=${query}&type=like&sort=population&cnt=30&appid=${this.appId}`;
+    const url = `${environment.openweathermapUrl}/find?q=${query}&type=like&sort=population&cnt=30&appid=${environment.appId}`;
     return this.http.get(url)
       .pipe(map((data: any) => {
         if (data && data.cod && data.cod === '200') {
@@ -56,7 +53,10 @@ export class WeatherService {
   }
 
   getSettings(): Observable<WeatherSearchSettings.Settings> {
-    return this.localStorage.getItem(WeatherService.SETTING_KEY);
+    return this.localStorage.getItem(WeatherService.SETTING_KEY)
+      .pipe(map(sett =>
+        _.extend(WeatherSearchSettings.DefaultSettings, sett)
+      ));
   }
 
   private mapWeatherResult(rawResponse: WeatherSearchResponse.WeatherForcast): WeatherSearch.WeatherProjected {
@@ -100,7 +100,5 @@ export class WeatherService {
     }
 
     return new WeatherSearch.WeatherProjected(city, country, daysForcast);
-
   }
-
 }

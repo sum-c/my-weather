@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
@@ -28,6 +28,7 @@ import { CityFormatter } from 'src/app/setting/city-name-formatter.pipe';
     NgbModule.forRoot(),
     HttpClientModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     FormsModule,
     ToastrModule.forRoot(),
     MomentModule,

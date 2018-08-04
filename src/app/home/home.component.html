@@ -2,7 +2,7 @@
   <div class="row">
     <h4>{{weatherForcast.city}}, {{weatherForcast.country}}</h4>
   </div>
-  <div class="row card-deck">
+  <div class="row  card-deck">
     <div class="card" *ngFor="let day of weatherForcast.daysForcast">
       <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
       <div class="card-body">
@@ -10,7 +10,7 @@
           <div class=" h5">{{day.date}}</div>
           <div class=" h5 align-right">{{ day.avgTemp | number:'1.0-0'}}&deg; </div>
         </div>
-      <hr>
+        <hr>
         <div class="card-text small" *ngFor="let time of day.weatherByTime; index as i">
           <div class="d-flex justify-content-between align-items-center">
             <p>{{time.time}}
@@ -28,5 +28,7 @@
 
       </div>
     </div>
+
   </div>
 </div>
+<h3 *ngIf="hasError && weatherForcast == null">Service is not available right now, please try after some time.</h3>
