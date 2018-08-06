@@ -64,7 +64,7 @@ export class WeatherService {
     const country = rawResponse.city.country;
     const daysForcast = new Array<WeatherSearch.WeatherByDay>();
     const weatherGroupByDay = _.groupBy(rawResponse.list, (t) => {
-      const dateTime = moment.utc(new Date(t.dt * 1000));
+      const dateTime = moment(new Date(t.dt * 1000));
       const dateValue = moment({
         year: dateTime.year(),
         month: dateTime.month(),
@@ -77,13 +77,13 @@ export class WeatherService {
       if (weatherGroupByDay.hasOwnProperty(key)) {
         const value = weatherGroupByDay[key];
         const syatemDate = moment();
-        const thisDate = moment.utc(+key * 1000);
+        const thisDate = moment(+key * 1000);
         if (syatemDate.isAfter(thisDate, 'day')) {
           continue;
         }
 
         const weatherByTime = value.map(t => {
-          const time = moment.utc(t.dt * 1000).format('LT');
+          const time = moment(t.dt * 1000).format('LT');
           const temp = t.main.temp;
           const humidity = t.main.humidity;
           const main = t.weather[0].main;

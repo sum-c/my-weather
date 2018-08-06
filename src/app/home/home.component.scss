@@ -1,0 +1,13 @@
+.card-container {
+  overflow-x: auto;
+  .card {
+    margin: 5px;
+    min-width: 100%;
+  }
+  
+  @media (min-width: 576px) {
+    .card {
+        min-width: 200px;
+      }
+  }
+}

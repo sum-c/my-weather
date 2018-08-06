@@ -19,8 +19,12 @@
     </div>
   </div>
 
-  <div class="row  card-deck">
-    <div class="card" *ngFor="let day of weatherForcast.daysForcast">
+<h3 *ngIf="hasError && weatherForcast == null">Service is not available right now, please try after some time.</h3>
+
+</div>
+  <div class="container-fluid">
+  <div class="d-flex flex-row flex-nowrap card-container">
+    <div class="card" *ngFor="let day of weatherForcast?.daysForcast">
       <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
@@ -47,5 +51,5 @@
     </div>
 
   </div>
-</div>
-<h3 *ngIf="hasError && weatherForcast == null">Service is not available right now, please try after some time.</h3>
+  </div>
+
